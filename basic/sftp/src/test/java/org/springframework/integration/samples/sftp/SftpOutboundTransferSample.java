@@ -28,7 +28,13 @@ import org.springframework.messaging.Message;
 import org.springframework.messaging.MessageChannel;
 import org.springframework.util.Assert;
 
+import com.jcraft.jsch.Channel;
+import com.jcraft.jsch.ChannelSftp;
 import com.jcraft.jsch.ChannelSftp.LsEntry;
+import com.jcraft.jsch.JSch;
+import com.jcraft.jsch.JSchException;
+import com.jcraft.jsch.Session;
+import com.jcraft.jsch.SftpException;
 
 /**
  *
@@ -40,13 +46,14 @@ import com.jcraft.jsch.ChannelSftp.LsEntry;
 public class SftpOutboundTransferSample {
 
 	@Test
-	public void testOutbound() throws Exception{
+	public void testOutbound() throws Exception {
 
 		final String sourceFileName = "README.md";
-		final String destinationFileName = sourceFileName +"_foo";
+		final String destinationFileName = sourceFileName + "_foo";
 
-		final ClassPathXmlApplicationContext ac =
-			new ClassPathXmlApplicationContext("/META-INF/spring/integration/SftpOutboundTransferSample-context.xml", SftpOutboundTransferSample.class);
+		final ClassPathXmlApplicationContext ac = new ClassPathXmlApplicationContext(
+				"/META-INF/spring/integration/SftpOutboundTransferSample-context.xml",
+				SftpOutboundTransferSample.class);
 		@SuppressWarnings("unchecked")
 		SessionFactory<LsEntry> sessionFactory = ac.getBean(CachingSessionFactory.class);
 		RemoteFileTemplate<LsEntry> template = new RemoteFileTemplate<LsEntry>(sessionFactory);
@@ -65,13 +72,39 @@ public class SftpOutboundTransferSample {
 
 			Assert.isTrue(SftpTestUtils.fileExists(template, destinationFileName));
 
-			System.out.println(String.format("Successfully transferred '%s' file to a " +
-					"remote location under the name '%s'", sourceFileName, destinationFileName));
-		}
-		finally {
+			System.out.println(
+					String.format("Successfully transferred '%s' file to a " + "remote location under the name '%s'",
+							sourceFileName, destinationFileName));
+		} finally {
 			SftpTestUtils.cleanUp(template, destinationFileName);
 			ac.close();
 		}
 	}
 
+	@Test
+	public void test() {
+		try {
+			JSch jsch = new JSch();
+			Session session = null;
+
+			jsch.addIdentity("C:\\dev\\keys\\openssh_private_key_1024", "test");
+
+			session = jsch.getSession("username", "localhost", 22);
+			session.connect();
+
+			Channel channel = session.openChannel("sftp");
+			channel.connect();
+			ChannelSftp sftpChannel = (ChannelSftp) channel;
+			try {
+				sftpChannel.put("C:\\Users\\test.txt", "/home/user/test.txt");
+			} catch (SftpException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			sftpChannel.exit();
+			session.disconnect();
+		} catch (JSchException e) {
+			e.printStackTrace();
+		}
+	}
 }

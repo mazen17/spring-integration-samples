@@ -28,6 +28,7 @@ import org.springframework.context.support.ClassPathXmlApplicationContext;
 import org.springframework.integration.file.remote.RemoteFileTemplate;
 import org.springframework.integration.file.remote.session.CachingSessionFactory;
 import org.springframework.integration.file.remote.session.SessionFactory;
+import org.springframework.integration.sftp.session.DefaultSftpSessionFactory;
 
 import com.jcraft.jsch.ChannelSftp.LsEntry;
 
@@ -45,6 +46,7 @@ public class SftpOutboundGatewaySample {
 		ConfigurableApplicationContext ctx = new ClassPathXmlApplicationContext(
 				"classpath:/META-INF/spring/integration/SftpOutboundGatewaySample-context.xml");
 		ToSftpFlowGateway toFtpFlow = ctx.getBean(ToSftpFlowGateway.class);
+		DefaultSftpSessionFactory defaultob = ctx.getBean(DefaultSftpSessionFactory.class);
 		RemoteFileTemplate<LsEntry> template = null;
 		String file1 = "1.ftptest";
 		String file2 = "2.ftptest";

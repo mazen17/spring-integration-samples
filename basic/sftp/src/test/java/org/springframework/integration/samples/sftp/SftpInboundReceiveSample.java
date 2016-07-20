@@ -72,7 +72,7 @@ public class SftpInboundReceiveSample {
 			System.out.println("No third file was received as expected");
 		}
 		finally {
-			SftpTestUtils.cleanUp(template, file1, file2, file3);
+			//SftpTestUtils.cleanUp(template, file1, file2, file3);
 			context.close();
 			assertTrue("Could note delete retrieved file", new File("local-dir", file1).delete());
 			assertTrue("Could note delete retrieved file", new File("local-dir", file2).delete());
